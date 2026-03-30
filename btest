@@ -56,7 +56,7 @@ else:
     import multiprocessing.managers as mp_managers
     import multiprocessing.sharedctypes as mp_sharedctypes
 
-VERSION = "1.3-19"  # Automatically filled in.
+VERSION = "1.3-21"  # Automatically filled in.
 
 Name = "btest"
 Config = None
@@ -64,6 +64,12 @@ Config = None
 DEFAULT_CONFIG_NAME = "btest.cfg"
 
 ConfigDefault = os.environ.get("BTEST_CFG", DEFAULT_CONFIG_NAME)
+
+# These regexes have fixed patterns and are used in child processes, so they
+# must be module-level constants to survive multiprocess spawn on Windows.
+RE_INPUT = re.compile(r"%INPUT")
+RE_DIR = re.compile(r"%DIR")
+RE_ENV = re.compile(r"\$\{(\w+)}")
 
 
 def normalize_path(path):
@@ -440,9 +446,6 @@ class TestManager(mp_managers.SyncManager):
         mgr_data["Options"] = Options
         mgr_data["TestBase"] = TestBase
         mgr_data["TmpDir"] = TmpDir
-        mgr_data["RE_INPUT"] = RE_INPUT
-        mgr_data["RE_DIR"] = RE_DIR
-        mgr_data["RE_ENV"] = RE_ENV
 
         output_handler.prepare(self)
         self._output_handler = output_handler
@@ -566,6 +569,15 @@ class TestManager(mp_managers.SyncManager):
         if sys.platform == "win32":
             for global_key, global_value in mgr_data.items():
                 globals()[global_key] = global_value
+
+            # multiprocess/dill may reconstruct this method with its own globals
+            # dict, separate from the module-level globals used by functions like
+            # replaceEnvs. Also set globals in __mp_main__, which is where
+            # multiprocess imports the script in spawned child processes.
+            mp_main = sys.modules.get("__mp_main__")
+            if mp_main is not None:
+                for global_key, global_value in mgr_data.items():
+                    setattr(mp_main, global_key, global_value)
 
         while True:
             # Pull the next test from the list that was built at startup. This may
@@ -3275,9 +3287,6 @@ if __name__ == "__main__":
 
     CommandPrefix = getOption("CommandPrefix", "@TEST-")
 
-    RE_INPUT = re.compile(r"%INPUT")
-    RE_DIR = re.compile(r"%DIR")
-    RE_ENV = re.compile(r"\$\{(\w+)}")
     RE_PART = re.compile(r"^(.*)#([0-9]+)$")
     RE_IGNORE = re.compile(CommandPrefix + "IGNORE")
     RE_START_NEXT_TEST = re.compile(CommandPrefix + "START-NEXT")
