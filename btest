@@ -2169,7 +2169,6 @@ class XMLReport(OutputHandler):
     RESULT_PASS = "pass"
     RESULT_FAIL = "failure"
     RESULT_SKIP = "skipped"
-    RESULT_UNSTABLE = "unstable"
 
     def __init__(self, options, xmlfile):
         """Output handler for producing an XML report of test results.
@@ -2252,7 +2251,8 @@ class XMLReport(OutputHandler):
         self.addTestResult(test, self.RESULT_FAIL)
 
     def testUnstable(self, test, msg):
-        self.addTestResult(test, self.RESULT_UNSTABLE)
+        # JUnit has no concept of flaky tests, report them as failures.
+        self.testFailed(test, msg)
 
     def testSkipped(self, test, msg):
         self.addTestResult(test, self.RESULT_SKIP)
