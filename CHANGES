@@ -1,3 +1,11 @@
+1.3-23 | 2026-06-01 12:14:18 -0700
+
+  * Mark unstable tests as failures in JUnit output (Tim Wojtulewicz, Corelight)
+
+    The JUnit format only has tags for faiulre, error, and skipped. Our
+    unofficial unstable tag causes problems with other tooling that reads
+    the JUnit output, such as CircleCI's test insights.
+
 1.3-21 | 2026-03-30 13:37:52 -0700
 
   * [windows] fix multiprocess dill issue (Maor Hamami)
