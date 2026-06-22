@@ -148,12 +148,7 @@ if [ ! -f "$input" ]; then
 fi
 
 tmpfiles=""
-delete_tmps() {
-    # shellcheck disable=SC2086,SC2317
-    rm -f $tmpfiles 2>/dev/null
-}
-
-trap delete_tmps 0
+trap 'rm -f $tmpfiles 2>/dev/null' 0
 
 # First available baseline across directories.
 baseline=""

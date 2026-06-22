@@ -6,7 +6,6 @@ import subprocess
 from docutils import nodes, utils
 from docutils.parsers.rst import Directive, Parser, directives
 from docutils.transforms import Transform
-
 from sphinx.directives.code import LiteralInclude
 from sphinx.errors import SphinxError
 from sphinx.util import logging
