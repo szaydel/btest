@@ -56,7 +56,7 @@ else:
     import multiprocessing.managers as mp_managers
     import multiprocessing.sharedctypes as mp_sharedctypes
 
-VERSION = "1.3-23"  # Automatically filled in.
+VERSION = "1.3-26"  # Automatically filled in.
 
 Name = "btest"
 Config = None
@@ -1832,7 +1832,7 @@ class Console(OutputHandler):
         OutputHandler.__init__(self, options, reopen_std_file(sys.__stdout__))
 
     def testStart(self, test):
-        msg = f"[{test.mgr.percentage():>3.0f}%] {test.displayName()} ..."
+        msg = f"[{int(test.mgr.percentage()):>3d}%] {test.displayName()} ..."
         self.output(test, msg, nl=False)
 
     def testProgress(self, test, msg):
@@ -1931,7 +1931,7 @@ class CompactConsole(Console):
         self._outfile.flush()
 
     def _consoleOutput(self, test, msg, sticky):
-        line = f"[{test.mgr.percentage():>3.0f}%] {test.displayName()} ..."
+        line = f"[{int(test.mgr.percentage()):>3d}%] {test.displayName()} ..."
 
         if msg:
             line += " " + msg
